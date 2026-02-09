@@ -55,28 +55,39 @@ enum NotificationType {
 }
 
 enum UserRole {
-  MODERATOR
-  ADMIN
+  SYSTEM_ADMIN
+  COMPANY_ADMIN
+  COMPANY_OWNER
   CAREGIVER
-  ELDERLY
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  READ
+}
+
+enum NotificationChannel {
+  DASHBOARD
+  EMAIL
+  WHATSAPP
 }
 
 model User {
-  id   String   @id @default(uuid())
-  role UserRole
-}
-
-model Elderly {
   id        String   @id @default(uuid())
-  name      String
-  age       String
-  docuent   String
-  birthDate DateTime @map("birth_date")
+  role      UserRole
+  email     String   @unique()
+  password  String
+  isOwner   Boolean  @map("is_owner")
+  isActive  Boolean  @map("is_active")
+  companyId String   @map("company_id")
 
+  company   Company  @relation(fields: [companyId], references: [id])
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 }
 
+// Each company can have only one owner
 model Company {
   id       String @id @default(uuid())
   name     String
@@ -85,6 +96,7 @@ model Company {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  users     User[]
 }
 
 model Subscription {
@@ -116,10 +128,10 @@ model SubscriptionPayment {
   currency      String                    @default("BRL")
   method        PaymentMethod
   status        SubscriptionPaymentStatus
-  transactionId String? // id no provedor externo
+  transactionId String?                   @map("transaction_id") // id no provedor externo
   attemptAt     DateTime                  @default(now()) @map("attempt_at")
   paidAt        DateTime?                 @map("paid_at")
-  statusReason  String? // falha, rejeitado, saldo insuficiente
+  statusReason  String?                   @map("status_reason") // falha, rejeitado, saldo insuficiente
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -128,12 +140,13 @@ model SubscriptionPayment {
 }
 
 model Plan {
-  id       String       @id @default(uuid())
-  name     String       @unique
-  price    Float
-  period   PlanInterval // MONTHLY, YEARLY, etc.
-  isMain   Boolean      @default(false) @map("is_main")
-  isActive Boolean      @map("is_active")
+  id           String       @id @default(uuid())
+  name         String       @unique
+  price        Float
+  period       PlanInterval // MONTHLY, YEARLY, etc.
+  isMain       Boolean      @default(false) @map("is_main")
+  isActive     Boolean      @map("is_active")
+  isEnterprise Boolean      @map("is_enterprise")
 
   planBenefits  PlanBenefit[]
   subscriptions Subscription[]
@@ -156,4 +169,55 @@ model PlanBenefit {
   plan Plan @relation(fields: [planId], references: [id])
 
   @@map("plan_benefits")
+}
+
+model Elderly {
+  id        String   @id @default(uuid())
+  name      String
+  age       String
+  document  String
+  birthDate DateTime @map("birth_date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Device {
+  id           String @id @default(uuid())
+  name         String
+  serialNumber String @unique @map("serial_number")
+  companyId    String @map("company_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  measurements  Measurement[]
+  notifications Notification[]
+}
+
+model Measurement {
+  id           String  @id @default(uuid())
+  deviceId     String
+  bpm          Int
+  spo2         Int
+  fallDetected Boolean
+
+  device    Device   @relation(fields: [deviceId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Notification {
+  id          String              @id @default(uuid())
+  deviceId    String
+  caregiverId String
+  type        NotificationType
+  status      NotificationStatus  @default(PENDING)
+  channel     NotificationChannel @default(DASHBOARD)
+  message     String
+
+  device Device @relation(fields: [deviceId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
