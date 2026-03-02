@@ -1,0 +1,11 @@
+model Measurement {
+  id           String  @id @default(uuid())
+  deviceId     String
+  bpm          Int
+  spo2         Int
+  fallDetected Boolean
+
+  device    Device   @relation(fields: [deviceId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}

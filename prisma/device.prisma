@@ -1,0 +1,22 @@
+model Device {
+  id           String @id @default(uuid())
+  name         String
+  serialNumber String @unique @map("serial_number")
+  companyId    String @map("company_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  measurements  Measurement[]
+  notifications Notification[]
+}
+
+enum DeviceStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  DECOMMISSIONED
+  ERROR
+  LOW_BATTERY
+  DISCONNECTED
+}

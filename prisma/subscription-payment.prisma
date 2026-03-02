@@ -1,0 +1,34 @@
+model SubscriptionPayment {
+  id             String       @id @default(uuid())
+  subscriptionId String       @map("subscription_id")
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+
+  amount        Decimal
+  currency      String                    @default("BRL")
+  method        PaymentMethod
+  status        SubscriptionPaymentStatus
+  transactionId String?                   @map("transaction_id") // id no provedor externo
+  attemptAt     DateTime                  @default(now()) @map("attempt_at")
+  paidAt        DateTime?                 @map("paid_at")
+  statusReason  String?                   @map("status_reason") // falha, rejeitado, saldo insuficiente
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("subscription_payments")
+}
+
+enum SubscriptionPaymentStatus {
+  REQUIRES_PAYMENT_METHOD
+  REQUIRES_CONFIRMATION
+  REQUIRES_ACTION
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum PaymentMethod {
+  CARD
+  PIX
+}

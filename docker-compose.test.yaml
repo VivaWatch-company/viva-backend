@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    networks:
+      - viva-test-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    networks:
+      - viva-test-network
+    ports:
+      - "6379:6379"
+
+
+
+volumes:
+  db_data: {}
+
+networs:
+  viva-test-network:
+    driver: bridge

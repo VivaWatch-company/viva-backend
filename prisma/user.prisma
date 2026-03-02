@@ -1,0 +1,20 @@
+model User {
+  id        String   @id @default(uuid())
+  role      UserRole
+  email     String   @unique()
+  password  String
+  isOwner   Boolean  @map("is_owner")
+  isActive  Boolean  @map("is_active")
+  companyId String   @map("company_id")
+
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+enum UserRole {
+  SYSTEM_ADMIN
+  COMPANY_ADMIN
+  COMPANY_OWNER
+  CAREGIVER
+}

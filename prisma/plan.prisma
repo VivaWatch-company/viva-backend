@@ -1,0 +1,38 @@
+model Plan {
+  id           String       @id @default(uuid())
+  name         String       @unique
+  price        Float
+  period       PlanInterval // MONTHLY, YEARLY, etc.
+  isMain       Boolean      @default(false) @map("is_main")
+  isActive     Boolean      @map("is_active")
+  isEnterprise Boolean      @map("is_enterprise")
+
+  planBenefits  PlanBenefit[]
+  subscriptions Subscription[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("plans")
+}
+
+model PlanBenefit {
+  id          String @id @default(uuid())
+  title       String
+  description String
+  planId      String @map("plan_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@map("plan_benefits")
+}
+
+enum PlanInterval {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
