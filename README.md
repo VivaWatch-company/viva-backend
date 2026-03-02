@@ -42,14 +42,13 @@ project-root/
 │   │   │   │   └── owner/
 │   │
 │   ├── lib/
-│   │   ├── ubase-operation/
+│   │   ├── base-operation/
 │   │
 │   │
 │   └── main.ts
 │
 ├── tests/
-├── docs/
-├── .env
+├── .env.example
 ├── package.json
 └── README.md
 ```
