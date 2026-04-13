@@ -1,20 +1,19 @@
-import { HttpStatus } from '@nestjs/common';
-import { OperationResponse } from './operation-response';
+import { Either, either } from '../either';
 
-export class BaseOperation<TParams, TPayload> {
+export abstract class BaseOperation<TParams, TSuccess, TError extends Error> {
   protected params: TParams;
-  model!: TPayload;
 
-  public async call(): Promise<OperationResponse<TPayload>> {
-    throw new Error('Call method must bet implemented');
+  constructor(params: TParams) {
+    this.params = params;
   }
 
-  protected resolve(httpStatus: HttpStatus = HttpStatus.OK, message: string) {
-    return new OperationResponse({
-      exception: null,
-      payload: this.model,
-      status: httpStatus,
-      message,
-    });
+  abstract call(): Promise<Either<TError, TSuccess>>;
+
+  protected ok(payload: TSuccess): Either<TError, TSuccess> {
+    return either.right(payload);
+  }
+
+  protected fail(error: TError): Either<TError, TSuccess> {
+    return either.left(error);
   }
 }
