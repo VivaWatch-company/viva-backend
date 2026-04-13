@@ -1,29 +1,43 @@
+version: '3.8'
+
 services:
-  db:
-    image: postgres:latest
+  postgres:
+    image: postgres:14-alpine
     environment:
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpassword
-      POSTGRES_DB: testdb
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=testdb
     ports:
-      - "5432:5432"
+      - '5432:5432'
     networks:
       - viva-test-network
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U testuser']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:latest
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
     networks:
       - viva-test-network
     ports:
-      - "6379:6379"
+      - '6379:6379'
+    volumes:
+      - redis_test_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-
-
-volumes:
-  db_data: {}
-
-networs:
+networks:
   viva-test-network:
     driver: bridge
+
+volumes:
+  postgres_test_data:
+  redis_test_data:
