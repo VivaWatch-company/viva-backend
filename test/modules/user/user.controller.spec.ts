@@ -1,6 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import { Test, TestingModule } from '@nestjs/testing';
+import request from 'supertest';
 import { AppModule } from '../../../src/app.module';
 
 describe('UserController (e2e)', () => {
@@ -32,7 +32,7 @@ describe('UserController (e2e)', () => {
         document: '12345678901234',
       });
 
-    companyId = companyResponse.body.id;
+    companyId = companyResponse.body.id as string;
     userDto.companyId = companyId;
   });
 
@@ -49,7 +49,7 @@ describe('UserController (e2e)', () => {
 
       expect(response.body).toHaveProperty('id');
       expect(response.body.email).toBe(userDto.email);
-      createdUserId = response.body.id;
+      createdUserId = response.body.id as string;
     });
 
     it('should return error for duplicate email', async () => {
